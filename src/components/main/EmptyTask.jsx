@@ -14,10 +14,9 @@ const EmptyTask = ()=>{
 
     return(
         <div className="main__empty">
-            <h1>Задач нет😓 </h1>
             {emptyCont}
+            <h1>Задач нет😓</h1>
             <Button onclick={setAddState} className="button" title='Добавить задачу'/>
-            <p>sadsadsad</p>
         </div>
     )
 }

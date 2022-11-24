@@ -1,0 +1,34 @@
+@import './../../../tools/colors.less';
+
+.main__tasks{
+    .task{
+      
+       
+    }
+}
+.item{
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid @color-bg;
+    width: 400px;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    border-radius: 15px;
+    background-color: @color-bg1;
+    margin: 0 auto;
+    &:hover{
+        background-color: @color-bg1 - #111;
+    }
+    .btn__info{
+        width: 100%;
+        h3{
+            border-top: 2px solid @color-bg2;
+            padding-top: 7px;
+        }
+    }
+    .buttons{
+        display: flex;
+    }
+}

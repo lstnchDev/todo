@@ -1,4 +1,5 @@
 import './popup.less'
+
 const Popup = ({children})=>{
     return (
         <div className="popup">

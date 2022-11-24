@@ -18,7 +18,6 @@ const Main = ()=>{
                 <Button onclick={change} states={true} title='Открытые'/>
                 <Button onclick={change} states={false} title='Завершенные'/>
             </div>
-
             {main}
         </div>
     )
