@@ -1,0 +1,35 @@
+@import './../tools/colors.less';
+
+form{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 0 auto;
+    input, textarea{
+        padding: 12px;
+        font-size: 16px;
+        border: none;
+        background-color: gray;
+        border-radius: 5px;
+        color: white;
+        font-weight: 600;
+        margin: 10px 0;
+        &::placeholder{
+            color: rgba(248, 242, 232, 0.829);
+            font-size: 15px;
+        }
+        &:focus{
+            background-color: gray + #222;
+            outline:none;
+        }
+        
+    }
+    .buttons{
+        display: flex;
+        justify-content: space-between;
+        input{
+            cursor: pointer;
+        }
+    }
+}
