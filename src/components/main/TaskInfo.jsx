@@ -1,10 +1,10 @@
 import Button from "../../UI/Button";
 
-const TaskInfo = ({onClose})=>{
+const TaskInfo = ({onClose, title, id, state, description, finished, file})=>{
     return (
         <div className="task">
-            <h1>Сделать кофе - Завтра 16:00</h1>
-            <p>Нужно прям срочно сделать кофе очень важно это сделать прям уж так да да да да вооот</p>
+            <h1>{title}- {finished}</h1>
+            <p>{description}</p>
             <Button onclick={onClose} title='Завершить'/>
             <Button onclick={onClose} title='Редактировать'/>
             <Button onclick={onClose} title='Удалить'/>
