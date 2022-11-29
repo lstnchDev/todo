@@ -9,7 +9,6 @@ export const getAuthSlices = createSlice({
     initialState: initialState,
     reducers: {
         getUid: (state, action) =>{
-            console.log(action.payload)
             state.uId = action.payload
         },
     

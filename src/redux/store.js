@@ -1,11 +1,14 @@
 
 import { configureStore } from '@reduxjs/toolkit';
-import getProcessTaskSlices from './slices/getProcessTaskSlices'
+import getTaskSlices from './slices/getTaskSlices'
 import getAuthSlices from './slices/getAuthSlices'
 
 export const store = configureStore({
     reducer: {
-        getProcessTaskSlices,
+        getTaskSlices,
         getAuthSlices
-    }
+    }, 
+    middleware: (getDefaultMiddleware)=> getDefaultMiddleware({
+        serializableCheck: false
+    })
 })

@@ -1,55 +1,49 @@
 import { useState } from "react";
 import Button from "../../UI/Button";
-import EmptyTask from "./EmptyTask";
 import Tasks from "./Tasks";
 import './styles/main.less'
-import dayjs from "dayjs";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { getUid } from "../../redux/slices/getAuthSlices";
 
-
+/**
+ * 
+ * @returns {React.ReactElement} - главный компонент с задачами и функциональностью
+ */
 const Main = ()=>{
-    
+
+    // состояние для показа в Tasks открытых или завершенных задач
     const [tasksState, setTasksState] = useState(false)
+
     const dispatch = useDispatch()
 
-    const main = <Tasks tasksState={tasksState}/> 
     const auth = getAuth()
+
+    //анонимная авторизация пользователя firebase для получения uid, по которому пользователь будет получать только свои задачи
     signInAnonymously(auth)
-    .then(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-              // User is signed in, see docs for a list of available properties
-              // https://firebase.google.com/docs/reference/js/firebase.User
-              const uid = user.uid;
-              console.log(uid)
-              dispatch(getUid(uid))
-              // ...
-            } else {
-              // User is signed out
-              // ...
-            }
-          });    
-        })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // ...
-    });
+      .then(() => {
+          onAuthStateChanged(auth, (user) => {
+              if (user) {
+                //диспатчим uid пользователя
+                dispatch(getUid(user.uid))
+              } 
+            });    
+          })
     
-    const change = (selectorState)=>{
-        setTasksState(selectorState)
-    }
+  /**
+      слушатель для изменения состояния tasksState при нажатии на кнопки
+      @param {boolean} selectorState - переданное от кнопки состояние
+  */
+    const onTasksStateHandler = (selectorState) => setTasksState(selectorState)
 
     return (
         <div className="main">
             <div className="main_buttons">
-                <Button onclick={change} states={false} title='Открытые'/>
-                <Button className="finished" onclick={change} states={true} title='Завершенные'/>
+                <Button onclick={onTasksStateHandler} states={false} title='Открытые'/>
+                <Button className="finished" onclick={onTasksStateHandler} states={true} title='Завершенные'/>
             </div>
-            {main}
-        </div>
+            <Tasks tasksState={tasksState}/> 
+          </div>
     )
 }
 

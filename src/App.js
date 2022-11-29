@@ -6,7 +6,6 @@ function App() {
 
   return (
     <div className="app">
-        {/* <PopupBg/> */}
         <Header />
         <Main />
     </div>
