@@ -7,6 +7,7 @@ import { addDoc, collection, doc, Firestore, getFirestore, setDoc, Timestamp, up
 import './input.less'
 import dayjs from 'dayjs';
 import { async } from '@firebase/util';
+import { useSelector } from 'react-redux';
 const Input = ({onAddState, title, id, state, description, finished, file, statePopup=false })=>{
 
     const [titleInput, setTitle] = useState(title)
@@ -32,8 +33,8 @@ const Input = ({onAddState, title, id, state, description, finished, file, state
 
     }
 
-
-
+    const uId =  useSelector((state)=> state.getAuthSlices.uId)
+    
     const time = (dayjs.unix(date).format("YYYY-MM-DDTHH:mm"))
 
     console.log(time)
@@ -55,6 +56,7 @@ const Input = ({onAddState, title, id, state, description, finished, file, state
                description: descript,
                state: false,
                file: filesNames,
+               uid: uId,
                finished: Timestamp.fromDate(dayjs(time).toDate())
            })
            onAddState()
@@ -81,6 +83,7 @@ const Input = ({onAddState, title, id, state, description, finished, file, state
             description: descript,
             state: false,
             file: filesNames,
+            uid: uId,
             finished:  Timestamp.fromDate(dayjs(time).toDate())
         })
         .catch((error)=>{

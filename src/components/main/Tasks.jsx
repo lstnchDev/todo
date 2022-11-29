@@ -22,9 +22,12 @@ const Tasks = ({tasksState})=>{
 
     const [tasksArr, setTasks] = useState([])
     const [inputState, setInput] = useState(false)
+
+
+    const uId = useSelector((state)=> state.getAuthSlices.uId)
     const setAddState = ()=> setInput(!inputState)
     const onClose = ()=>setInput(false)
-
+    console.log(uId)
     const myTasks = tasksState ? "Ваши завершенные задачи:" : "Ваши открытые задачи: "
     const popupCont = <Modal 
                             className="modal"
@@ -36,10 +39,10 @@ const Tasks = ({tasksState})=>{
                         </Modal>
 
     // const pathReference = ref(storage, 'gs://bucket/files/76695a65996f3e3c3f122973a133e43e.jpg');
- 
+      
 
     useEffect(()=>{
-        const q = query(collection(db, 'tasks'),  where("state", "==", tasksState))
+        const q = query(collection(db, 'tasks'),  where("state", "==", tasksState), where("uid", "==", uId))
         
         const tasks = onSnapshot(q, (querySnapshot)=>{
             const arr = []
@@ -57,7 +60,7 @@ const Tasks = ({tasksState})=>{
 
           })
       
-    }, [tasksState])
+    }, [tasksState, uId])
     const tasksProcessSelector = useSelector((state)=>{
         return (state.getProcessTaskSlices.items)
     })
