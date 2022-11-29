@@ -1,65 +1,89 @@
 import dayjs from "dayjs";
-import { deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { useState } from "react";
-import { db } from "../../firebase/config";
+import { getBlob, getDownloadURL, ref } from "firebase/storage";
+import { useState, useEffect } from "react";
+import { db, storage } from "../../firebase/config";
 import Button from "../../UI/Button";
 import Input from "../../UI/Input";
 import Popup from "../../UI/Popup";
 import "./styles/item.less"
 import TaskInfo from "./TaskInfo";
+import 'dayjs/locale/ru'
+import Modal from 'react-modal';
+import { onAccept, onDelete } from "../../tools/changeTask";
+import { useDispatch, useSelector } from "react-redux";
 
-var calendar = require('dayjs/plugin/calendar')
-dayjs.extend(calendar)
-dayjs().calendar(null, {
-   sameDay: '[Today at] h:mm A', // The same day ( Today at 2:30 AM )
-   nextDay: '[Tomorrow at] h:mm A', // The next day ( Tomorrow at 2:30 AM )
-   nextWeek: 'dddd [at] h:mm A', // The next week ( Sunday at 2:30 AM )
-   lastDay: '[Yesterday at] h:mm A', // The day before ( Yesterday at 2:30 AM )
-   lastWeek: '[Last] dddd [at] h:mm A', // Last week ( Last Monday at 2:30 AM )
-   sameElse: 'DD/MM/YYYY' // Everything else ( 17/10/2011 )
- })
+dayjs.locale('ru')
 
-const TaskItem = ({title, id, state, description, finished, file, })=>{
+console.log(dayjs.locale() )
+
+const TaskItem = ({title, id, stateTask, description, finished, file, })=>{
+   const now = dayjs()
+
+
+   console.log(stateTask)
     const [popupChange, setChange] = useState(false)
     const [popupInfo, setInfo] = useState(false)
+    const [deadlineState, setDeadline] = useState(now.unix() < finished.seconds)
 
-     const onAccpet = async ()=> {
-        await updateDoc(doc(db, 'tasks', id),{
-            state: !state 
-        })
-    }
-   const time = dayjs(dayjs.unix(finished.seconds)).format('ddd, MMM D, YYYY h:mm A')
+   const onAcceptHandler = ()=> onAccept(stateTask, id)
+    const onDeleteHandler =  ()=> onDelete(id)
+    const arrName = []
+
+    console.log(file)
     
-   console.log(time)
-   const finishedDate = dayjs().calendar(dayjs(time))
-   console.log(finishedDate)
 
-     const onDelete = async ()=> {
-        await deleteDoc(doc(db, 'tasks', id))
-     }
-     const onChange = async ()=> {
+   const time = dayjs(dayjs.unix(finished.seconds)).format('dddd D MMMM, YYYY HH:mm')
+    
+   const timeStateTitle = deadlineState ? <h4 className="process">Задача в процессе: <p>{time}</p></h4> : <h4 className="expired">Задача просрочена: <p>{time}</p></h4>
+   console.log(finished.seconds - dayjs().unix() )
+
+   useEffect(()=>{
+      // dispatch(getFiles({id, file}))
+      const timer = setTimeout(()=>{
+         console.log(dayjs().unix() - finished.seconds)
+         setDeadline ((dayjs().unix() < finished.seconds))
+
+      }, (finished.seconds - dayjs().unix())*1000)
+
+      return ()=> clearTimeout(timer)
+   }, [finished.seconds])
+     const onChange = ()=> {
         setChange(!popupChange)
+        setInfo(false)
+
      }
      const onItemClick=()=>{
         setInfo(!popupInfo)
      }
-     const popupChangeItem = popupChange ? <Popup><Input onAddState={onChange} title={title} id={id} description={description} finished={time} file={file} statePopup={true} /></Popup> : ""
-     const popupInfoItem = popupInfo ? <Popup><TaskInfo onClose={onItemClick} title={title} id={id} description={description} finished={time} file={file}/></Popup> : ""
 
+     const popupChangeItem = <Modal 
+            className="modal"
+            isOpen={popupChange}
+            onRequestClose={onchange}>
+         <Popup><Input onAddState={onChange} title={title} id={id} description={description} finished={finished.seconds} file={file} statePopup={true} /></Popup> 
+     </Modal>
+   //   const popupInfoItem = popupInfo ? <Popup><TaskInfo onClose={onItemClick} title={title} id={id} description={description} finished={time} file={file}/></Popup> : ""
+     const popupInfoItem = <Modal
+                     className="modal"
+                     isOpen={popupInfo}
+                     onRequestClose={onItemClick}><Popup><TaskInfo onClose={onItemClick} onChange={onChange} stateTask={stateTask} title={title} id={id} description={description} finished={time} file={file}/></Popup> </Modal>
      return (
         <div className="item" >
                 {popupChangeItem}
                 {popupInfoItem}
-                 <Button title='🖊️' onclick={onChange}/>
+                 <Button  title='🖊️' onclick={onChange}/>
 
-                    <div className="btn__info" onClick={onItemClick}>
-                    <h4>{time}</h4>
-                    <p>{title}</p>
+               <div className="btn__info" onClick={onItemClick}>
+                    {timeStateTitle}
+                   <div className="info__text">
+                     <h2>{title}</h2>
+                     <p className="description">{description}</p>
+                   </div>
                 </div>
 
             <div className="buttons">
-                <Button onclick={onAccpet} title="✔"/>
-                <Button onclick={onDelete} title="✖"/>
+                <Button className="accept" onclick={onAcceptHandler} title="✔"/>
+                <Button className="delete" onclick={onDeleteHandler} title="✖"/>
              </div>
         </div>
     )

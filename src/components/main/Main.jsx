@@ -3,11 +3,14 @@ import Button from "../../UI/Button";
 import EmptyTask from "./EmptyTask";
 import Tasks from "./Tasks";
 import './styles/main.less'
-const Main = ()=>{
+import dayjs from "dayjs";
 
+
+const Main = ()=>{
+    
     const [tasksState, setTasksState] = useState(false)
 
-    const main = tasksState ? <Tasks /> : <EmptyTask />
+    const main = <Tasks tasksState={tasksState}/> 
 
     const change = (selectorState)=>{
         setTasksState(selectorState)
@@ -15,8 +18,8 @@ const Main = ()=>{
     return (
         <div className="main">
             <div className="main_buttons">
-                <Button onclick={change} states={true} title='Открытые'/>
-                <Button onclick={change} states={false} title='Завершенные'/>
+                <Button onclick={change} states={false} title='Открытые'/>
+                <Button className="finished" onclick={change} states={true} title='Завершенные'/>
             </div>
             {main}
         </div>

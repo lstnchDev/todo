@@ -1,32 +1,45 @@
 import Button from "../../UI/Button";
-import * as dayjs from 'dayjs'
 import "./styles/tasks.less"
 import { useEffect, useState } from "react";
 import Popup from "../../UI/Popup";
 import TaskInfo from "./TaskInfo";
 import { db, storage } from './../../firebase/config';
 import { collection, getDocs, onSnapshot, orderBy, query, where } from "firebase/firestore";
-import { ref, listAll, getDownloadURL } from "firebase/storage"
 import TaskItem from "./TaskItem";
+import Input from "../../UI/Input";
+import { useDispatch, useSelector } from "react-redux";
+import getProcessTaskSlices, { getTasks } from "../../redux/slices/getProcessTaskSlices";
+import Modal from 'react-modal';
 
-var calendar = require('dayjs/plugin/calendar')
-dayjs.extend(calendar)
   
-const Tasks = ()=>{
+const Tasks = ({tasksState})=>{
     function compareNumbers(a, b) {
         return (a.finished.seconds - b.finished.seconds)
       }
+
+    const dispatch = useDispatch()
     const [infoState, setInfoState] = useState(false)
-    const [tasksState, setTasksState] = useState(true)
 
     const [tasksArr, setTasks] = useState([])
-    const [tasksArr2, setTasks2] = useState([])
+    const [inputState, setInput] = useState(false)
+    const setAddState = ()=> setInput(!inputState)
+    const onClose = ()=>setInput(false)
+
+    const myTasks = tasksState ? "Ваши завершенные задачи:" : "Ваши открытые задачи: "
+    const popupCont = <Modal 
+                            className="modal"
+                            isOpen={inputState}
+                            onRequestClose={onClose}>
+                            <Popup>
+                                <Input onAddState={setAddState}/>
+                            </Popup>
+                        </Modal>
+
+    // const pathReference = ref(storage, 'gs://bucket/files/76695a65996f3e3c3f122973a133e43e.jpg');
+ 
 
     useEffect(()=>{
-        const q = query(collection(db, 'tasks'),  where("state", "==", false))
-        const q2 = query(collection(db, 'tasks'),  where("state", "==", true))
-
-        // const q1 = query(collection(db, 'tasks'),  orderBy("finished", "asc"))
+        const q = query(collection(db, 'tasks'),  where("state", "==", tasksState))
         
         const tasks = onSnapshot(q, (querySnapshot)=>{
             const arr = []
@@ -38,71 +51,37 @@ const Tasks = ()=>{
                 arr.push({...doc.data(), id: doc.id})
             
                 arr.sort(compareNumbers)
-                //   setTasks((prevState)=>({
-                //       ...prevState,
-                //        ...doc.data()
-                //   }))
+     
             })
-            setTasks(arr)
-
-          })
-          const tasks2 = onSnapshot(q2, (querySnapshot)=>{
-            const arr = []
-
-            querySnapshot.forEach((doc)=>{
-                const date = doc.data()
-                console.log(date)
-
-                arr.push({...doc.data(), id: doc.id})
-            
-                arr.sort(compareNumbers)
-                //   setTasks((prevState)=>({
-                //       ...prevState,
-                //        ...doc.data()
-                //   }))
-            })
-            setTasks2(arr)
+            dispatch(getTasks(arr))
 
           })
       
     }, [tasksState])
-    console.log(tasksArr)
-    const now = dayjs()
-    console.log(now)
-    console.log('2022-11-28T23:40' < '2022-11-26T23:47')
-
-    const taskItem = tasksArr !== undefined ? tasksArr.map((task)=> 
+    const tasksProcessSelector = useSelector((state)=>{
+        return (state.getProcessTaskSlices.items)
+    })
+    const taskItem = tasksProcessSelector.length>0 ? tasksProcessSelector.map((task)=> 
     <TaskItem 
+        key={task.id}
         title={task.title}
         id={task.id}
-        state={task.state}
+        stateTask={task.state}
         description={task.description}
         finished={task.finished}
         file={task.file}
-    />) : ''
-    const taskItem2 = tasksArr2 !== undefined ? tasksArr2.map((task)=> 
-        <TaskItem 
-            title={task.title}
-            id={task.id}
-            state={task.state}
-            description={task.description}
-            finished={task.finished}
-            file={task.file}
-        />) : ''
-    const onNext = ()=>{
-        setTasksState(!tasksState)
-    }
+    />) : <h2>Задач нет😓</h2>
 
-    const onCloseHandler = ()=> setInfoState(false)
-    const popup = infoState ? <Popup><TaskInfo onClose={onCloseHandler}/></Popup> : ''
     return (
         <div className="main__tasks">
-            <h2>Ваши задачи:</h2>
+            <Button onclick={setAddState} className="button" title='Добавить задачу'/>
+            {popupCont}
+            <h1>{myTasks}</h1>
             <div className="task">
-                {popup}
-                {tasksState ? taskItem : taskItem2}
-                <Button onclick={onNext} title='next'/>
-            </div>
+                {taskItem}
+              </div>
+             
+
         </div>
     )
 }

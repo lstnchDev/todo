@@ -2,7 +2,7 @@
 
 .buttonSelect{
     background-color: @color-button;
-    border: 1px solid @color-button - #111;
+    border:none;
     cursor: pointer;
     padding: 10px 20px;
     border-radius: 10px;
@@ -17,8 +17,28 @@
     border: 2px dotted @color-bg1 - #111;
     background-color: @color-bg;
     color: @color-bg1;
+    margin-top: 25px;
     font-size: 18px;
     &:hover{
         background-color: @color-bg - #111;
     }
+}
+.accept, .delete, .change{
+    border-radius: 0;
+    width: 100%;
+}
+.delete, .finished{
+    background-color: @color-bg1;
+
+    &:hover{
+        background-color: @color-bg1 - #111;
+    }
+}
+.close{
+    background-color: rgb(177, 177, 177);
+    margin-top: 15px;
+    &:hover{
+        background-color: rgb(177, 177, 177) - #111;
+    }
+
 }
